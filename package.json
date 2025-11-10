@@ -1,0 +1,18 @@
+{
+  "name": "tulip-dashboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:tokens": "style-dictionary build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "style-dictionary": "^5.1.1"
+  },
+  "devDependencies": {}
+}
