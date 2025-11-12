@@ -128,10 +128,6 @@ html, body{
   fill: #1760fd;
 }
 
-.indikator-value.battery-value {
-  color: #13de7f;
-}
-
 .indikator-value.wifi-value {
   color: #1760fd;
 }
@@ -140,8 +136,25 @@ html, body{
   color: #1760fd;
 }
 
-.indikator-icon.battery-color-base{
-  fill:#13de7f;
+/*baterai >= 50%*/
+.battery-status-good .indikator-icon,
+.battery-status-good .indikator-value{
+  color:#13DE7F;
+  fill: #13DE7F;
+}
+
+/*baterai 20%-49%*/
+.battery-status-medium .indikator-icon,
+.battery-status-medium .indikator-value{
+  color: #DEB513;
+  fill: #DEB513;
+}
+
+/*baterai <20%*/
+.battery-status-low .indikator-icon,
+.battery-status-low .indikator-value{
+  color: #DE1313;
+  fill: #DE1313;
 }
 
 .indikator-icon-wrapper {
