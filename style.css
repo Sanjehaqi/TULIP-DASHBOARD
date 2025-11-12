@@ -359,6 +359,182 @@ html, body{
   display: flex;
   margin-top: auto;
 }
+/*----------------*/
+/* MODAL (POP-UP)*/
+/*----------------*/
+.modal{
+display: none; /* Disembunyikan */
+  position: fixed; /* Tetap di layar bahkan saat di-scroll */
+  z-index: 1000; /* Muncul di atas segalanya */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* Ini untuk memusatkan kotak pop-up */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Transisi untuk fade-in (opsional tapi bagus) */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal.show{
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(131, 118, 118, 0.5); /* Hitam transparan */
+  z-index: 1001;
+  background-position: absolute;
+}
+
+.modal-content {
+  position: relative;
+  width: 50%;
+  max-width: 434;
+  height: fit-content;
+  z-index: 10002;
+
+  background-color: #F4F8FF;
+  border-radius: 30px;
+  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.23);
+
+  align-items: center;
+  justify-items: center;
+
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+
+  padding: 35px;
+}
+
+.modal.show .modal-content {
+  transform: scale(1);
+}
+
+.modal-header {
+  display: flex;
+
+  background-color: #fffefe;
+  border: 1px solid #2F2F2F;
+  border-radius: 50%;
+
+  height: 179px;
+  width: 179px;
+
+  align-items: center;
+  justify-content: center;
+  top: 10px;
+  right: 10px;
+}
+
+.modal-header.modal-header-radiasi {
+  background-color: #FEF3E6;
+  border: 1px solid #D97606;
+}
+
+.modal-header.modal-header-karbon {
+  background-color: #EAFAF4;
+  border: 1px solid #34D399;
+}
+
+.modal-icon {
+  position: relative;
+  width: 100px;
+  height: auto;
+  align-items: center;
+  justify-items: center;
+}
+
+.modal-icon.modal-icon-radiasi{
+  top: 5px;
+  left: 1px;
+}
+
+.modal-icon.modal-icon-suhu {
+  width: 48px;
+}
+
+.modal-icon.modal-icon-kelembapan {
+  right: 3px;
+  bottom: 1px;
+}
+
+.modal-title {
+  font-size: 40px;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.modal-detail{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+  height: fit-content;
+  min-height: 87px;
+
+  margin-left: 35px;
+  margin-right: 35px;
+  margin-bottom: 10px;
+  padding-left: 30px;
+  padding-right: 30px;
+
+  background-color: #E6E6E6;
+  border-radius: 15px;
+}
+
+.modal-typo {
+  font-size: 24px;
+  color: #666666;
+}
+
+.modal-value {
+  font-size: 24px;
+  color: #333333;
+}
+
+.modal-button{
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  margin-top: 100px;
+  text-align: center;
+  justify-content: center;
+  padding: 12px 25px;
+
+  width: 100%;
+  min-height: 45px;
+  height: fit-content;
+
+  text-decoration: none;
+  background-color: #FF3639;
+  color: #F4F8FF;
+  border-radius: 10px;
+
+  font-size: 18px;
+  font-weight: 550;
+}
+
+.modal-button:hover,
+.modal-button:focus {
+  background-color: #E82A2D;
+  text-decoration: none;
+  cursor: pointer;
+}
 
 /* Untuk Tablet <1024px */
 
