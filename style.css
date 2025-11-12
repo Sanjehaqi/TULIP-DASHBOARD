@@ -401,7 +401,7 @@ display: none; /* Disembunyikan */
 
 .modal-content {
   position: relative;
-  width: 50%;
+  width: 65%;
   max-width: 434;
   height: fit-content;
   z-index: 10002;
@@ -416,7 +416,7 @@ display: none; /* Disembunyikan */
   transform: scale(0.9);
   transition: transform 0.3s ease;
 
-  padding: 35px;
+  padding: 20px;
 }
 
 .modal.show .modal-content {
@@ -476,6 +476,7 @@ display: none; /* Disembunyikan */
   font-weight: 500;
   margin-top: 10px;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .modal-detail{
@@ -484,17 +485,12 @@ display: none; /* Disembunyikan */
   align-items: center;
 
   width: 100%;
-  height: fit-content;
-  min-height: 87px;
-
-  margin-left: 35px;
-  margin-right: 35px;
-  margin-bottom: 10px;
-  padding-left: 30px;
-  padding-right: 30px;
-
+  min-height: fit-content;
+  max-height: 87px;
+  padding: 12px;
   background-color: #E6E6E6;
   border-radius: 15px;
+  margin-bottom: 15px;
 }
 
 .modal-typo {
@@ -593,4 +589,46 @@ display: none; /* Disembunyikan */
     font-size:40px;
   }
 
+  .modal-content{
+    width: 80%;
+    height: 60%;
+    height: fit-content;
+  }
+}
+
+/* MODAL pas HP lansdcape */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-content{
+    align-items: center;
+    justify-content: center;
+
+
+  }
+
+  .modal-header{
+    width: 100px;
+    height: 100px;
+  }
+
+  .modal-icon{
+    width: 45px;
+    height: 45px;
+  }
+
+  .modal-detail{
+    height: 60px;
+  }
+  .modal-title{
+    font-size: 20px;
+    margin-top: 20px;
+  }
+  .modal-typo,
+  .modal-value{
+    font-size: 16px;
+    height: 15px;
+  }
+
+  .modal-button {
+    display: none;
+  }
 }
