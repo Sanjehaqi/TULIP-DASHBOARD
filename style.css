@@ -1,647 +1,220 @@
-/* ---------------------------------- */
-/* 1. RESET GLOBAL & ATURAN BOX-SIZING */
-/* ---------------------------------- */
+/* 1. RESET GLOBAL */
+*, *::before, *::after { box-sizing: border-box; }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+html, body {
+  margin: 0; padding: 0; min-height: 100vh; width: 100%;
+  font-family: "Roboto", sans-serif; font-size: 16px; line-height: 1.5;
+  color: #203146; background: #a2f5d6;
+  background-attachment: fixed; background-repeat: no-repeat; background-size: cover;
 }
 
-html, body{
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  height: 100%;
-  width: 100%;
-
-  font-family: "Roboto", sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--color-primary-600);
-  background:  #a2f5d6;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-
+/* 2. HEADER */
 .header-container {
-  display:flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
-  padding-left: 32px;
-  padding-right: 32px;
-  padding-top: 24px;
-  padding-bottom: 50px;
-  gap: 8px;
+  display: flex; justify-content: center; align-items: center;
+  padding: 24px 32px 50px; gap: 8px;
 }
-
-.logo-web {
-  width: 40px;
-  height: 40px;
-}
-
+.logo-web { width: 40px; height: 40px; }
 .tulisan-logo {
-  font-family: "Roboto", sans-serif;
-  color: #203146;
-  font-size: var(--font-size-3);
-  height: var(--line-height-4);
-  font-weight: 500;
+  font-family: "Roboto", sans-serif; color: #203146;
+  font-size: 1.5rem; font-weight: 500;
 }
-
 .judul-web {
-  font-family: "Roboto", sans-serif;
-  color: #41618b;
-  font-size: 64px;
-  font-weight: 400;
-  height: var(--line-height-9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding-left: 32px;
-  padding-right: 32px;
-  padding-bottom: 32px;
+  font-family: "Roboto", sans-serif; color: #41618b; font-size: 64px; font-weight: 400;
+  display: flex; justify-content: center; align-items: center; text-align: center;
+  padding: 0 32px 32px;
 }
 
-/* indikator*/
-
+/* 3. INDIKATOR BAR */
 .indikator-bar {
-  display: flex;
-  padding-left: 32px;
-  padding-right: 32px;
-  padding-bottom: 32px;
-  justify-content: center;
+  display: flex; justify-content: center; padding: 0 32px 32px;
 }
-
 .indikator-box {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 32px;
+  display: flex; flex-wrap: wrap; justify-content: space-around;
+  padding: 32px; width: 100%; max-width: 739px;
+  background-color: #eef2f7; border: 1px solid #cccccc;
+  border-radius: 25px; gap: 32px; align-items: center;
+}
+.indikator-item { display: flex; align-items: center; gap: 8px; justify-content: center; }
+.indikator-text { display: flex; flex-direction: column; min-width: 0; }
+.indikator-value { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.indikator-name { font-family: "Roboto", sans-serif; font-size: 18px; font-weight: 400; }
+.indikator-icon { width: 46px; height: 37px; display: block; margin: auto; fill: #1760fd; }
+.indikator-value.wifi-value, .indikator-value.gps-value { color: #1760fd; }
 
-  justify-content: space-around; 
-  
-  align-items: center;
-  width: 100%;
-  max-width: 739px;
-  background-color: #eef2f7;
-  border: 1px solid #cccccc;
-  border-radius: 25px;
-  gap: 32px 32px;
+/* Warna Status Indikator */
+.battery-status-good .indikator-icon, .battery-status-good .indikator-value { color: #13DE7F; fill: #13DE7F; }
+.battery-status-medium .indikator-icon, .battery-status-medium .indikator-value { color: #DEB513; fill: #DEB513; }
+.battery-status-low .indikator-icon, .battery-status-low .indikator-value { color: #DE1313; fill: #DE1313; }
+
+/* 4. MAIN GRID */
+.main-container {
+  display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: minmax(150px, auto);
+  gap: 20px; width: 100%; padding: 0 32px 32px; height: fit-content; min-height: 561px;
 }
 
-.indikator-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: center;
+.card {
+  display: flex; flex-direction: column; background-color: #F4F8FF;
+  border: 1px solid #999999; border-radius: 25px; padding: 25px;
+  width: 100%; height: 100%; justify-content: space-between; align-items: flex-start;
+  box-shadow: -2px 2px 10px rgba(0,0,0,0.23); transition: border-color 0.2s ease;
+}
+.card:hover { border-color: #4d4d4d; }
+
+.card-header {
+  display: flex; align-items: center; width: 100%; height: fit-content;
+  margin-bottom: 15px; gap: 10px; font-size: 18px; font-weight: 400; color: #1a1a1a;
+}
+.card-value {
+  width: 100%; font-size: 48px; font-weight: 400; text-align: left;
+  color: #1a1a1a; display: inline-block;
+}
+.card-footer {
+  width: 100%; display: flex; justify-content: flex-end; align-items: center; margin-top: auto;
 }
 
-.indikator-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0; 
+/* Card Colors */
+.card.card-radiation { background-color: #fccf9c; border: 1px solid #f99f39; }
+.card-radiation:hover { border-color: #955104; }
+.card.card-carbon { background-color: #c8f3e3; border: 1px solid #57dbab; }
+.card-carbon:hover { border-color: #1b7e5a; }
+
+/* Card Map Special */
+.card.card-map {
+  grid-row: span 2; grid-column: 3/4;
+  display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 25px 18px;
 }
-
-.indikator-value {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.card-map .card-header { justify-content: space-between; font-size: 18px; font-weight: 400; color: #1a1a1a; }
+.map-preview {
+  flex-grow: 1; background-color: #dce4ef; border-radius: 15px;
+  min-height: 200px; width: 100%; display: flex; margin-top: auto;
 }
-
-.indikator-name {
-  font-family: "Roboto", sans-serif;
-  font-size: 18px;
-  font-weight: 400;
+.map-button {
+  text-decoration: none; display: flex; font-size: 18px;
+  background-color: #1760fd; color: #f4f8ff; border-radius: 15px;
+  padding: 15px 10px; text-align: center; height: 100%; transition: background-color 0.2s ease;
 }
+.map-button:hover { background-color: #1250d4; }
 
-.indikator-icon {
-  width: 46px;
-  height: 37px;
-  display:block;
-  margin:auto;
+/* Icons */
+.card-icon { width: 100%; height: auto; fill: #1A1A1A; }
+.card-icon.radiation-icon { width: 25px; height: 22.58px; fill: #321B01; }
+.card-icon.carbon-icon { width: 29px; height: 23px; fill: #092A1E; }
+.card-icon.temperature-icon { width: 10.45px; height: 23px; }
+.card-icon.humidity-icon { width: 20px; height: 23px; }
+
+.detail-button {
+  text-decoration: none; display: flex; width: fit-content; padding: 5px 10px; gap: 5px;
+  background-color: #f2f2f2; border-radius: 10px; align-items: center; color: #1a1a1a;
+  transition: background-color 0.2s ease; height: 100%;
 }
+.detail-button:hover { background-color: #e9e7e7; }
+.detail-icon { height: 15px; width: 100%; fill: #1a1a1a; display: block; bottom: 0.25px; position: relative; }
 
-.indikator-icon {
-  fill: #1760fd;
+/* 5. MODAL */
+.modal {
+  display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+  width: 100%; height: 100%;
+  justify-content: center; align-items: center;
+  opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
 }
-
-.indikator-value.wifi-value {
-  color: #1760fd;
-}
-
-.indikator-value.gps-value {
-  color: #1760fd;
-}
-
-/*baterai >= 50%*/
-.battery-status-good .indikator-icon,
-.battery-status-good .indikator-value{
-  color:#13DE7F;
-  fill: #13DE7F;
-}
-
-/*baterai 20%-49%*/
-.battery-status-medium .indikator-icon,
-.battery-status-medium .indikator-value{
-  color: #DEB513;
-  fill: #DEB513;
-}
-
-/*baterai <20%*/
-.battery-status-low .indikator-icon,
-.battery-status-low .indikator-value{
-  color: #DE1313;
-  fill: #DE1313;
-}
-
-.indikator-icon-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-}
-
-/*main content*/
-
-.main-container{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: minmax(150px, auto);
-  gap: 20px;
-  height: fit-content;
-  min-height: 561px;
-  width: 100%;
-  padding-left: 32px;
-  padding-right: 32px;
-  padding-bottom: 32px;
-}
-
-.card{
-  display: flex;
-  flex-direction: column;
-  background-color: #F4F8FF;
-  border: 1px solid #999999;
-  border-radius: 25px;
-  padding: 25px 25px;
-  width: 100%;
-  height: 100%;
-  height: 100%;
-
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 0px;
-  
-  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.23);
-
-  transition: border-color 0.2s ease;
-}
-.card:hover{
-  border-color: #4d4d4d;
-}
-
-.card-header{
-  display: flex;
-  align-items: center;
-  position: relative;
-  width: 100%;
-  height: fit-content;
-
-  margin-bottom:15px;
-  gap:10px;
-
-  font-size:18px;
-  font-weight: 400;
-  color: #1a1a1a;
-}
-
-.card-value{
-  width: 100%;
-  position: relative;
-  font-size: 48px;
-  font-weight: 400;
-  text-align: left;
-  color: #1a1a1a;
-  display: inline-block;
-}
-
-.card-footer{
-  width: 100%;
-  position: relative;
-  display: flex;
-
-  justify-content: flex-end;
-  align-items: center;
-  align-content: center;
-  margin-top: auto;
-}
-
-.card.card-radiation{
-  background-color: #fccf9c;
-  border: 1px solid #f99f39;
-
-  transition: border-color 0.2s ease;
-}
-.card-radiation:hover{
-  border-color: #955104;
-}
-
-.card.card-carbon{
-  background-color: #c8f3e3;
-  border: 1px solid #57dbab;
-
-  transition: border-color 0.2s ease;
-}
-.card-carbon:hover{
-  border-color: #1b7e5a;
-}
-
-.card.card-map{
-  grid-row: span 2;
-  grid-column: 3/4;
-  display: flex;
-  height: 100%;
-  width: 100%;
-  position: relative;
-  gap:20px;
-  padding: 25px 18px;
-
-  flex-direction: column;
-  align-items: center;
-}
-
-.card-map .card-header{
-  justify-content: space-between;
-  width: 100%;
-  display: flex;
-
-  font-size: 18px;
-  font-weight: 400;
-  
-  color:#1a1a1a;
-}
-
-.card-icon{
-  width: 100%;
-  height: auto;
-  fill: #1A1A1A;
-}
-
-.card-icon.radiation-icon{
-  width:25px;
-  height: 22.58px;
-  fill: #321B01;
-}
-
-.card-icon.carbon-icon{
-  width: 29px;
-  height: 23px;
-  fill: #092A1E;
-}
-
-.card-icon.temperature-icon{
-  width: 10.45px;
-  height: 23px;
-}
-
-.card-icon.humidity-icon{
-  width: 20px;
-  height: 23px;
-}
-
-.detail-button{
-  text-decoration: none;
-  display: flex;
-  
-  height: 100%;
-  width: fit-content;
-  padding-left:10px;
-  padding-right: 10px;
-  padding-bottom: 5px;
-  padding-top: 5px;
-  gap: 5px;
-
-  background-color: #f2f2f2;
-  border-radius: 10px;
-  align-items: center;
-  color: #1a1a1a;
-
-  transition: background-color 0.2s ease;
-}
-.detail-button:hover{
-  background-color:#e9e7e7;
-}
-
-.detail-icon{
-  height: 15px;
-  width: 100%;
-  position: relative;
-  fill:#1a1a1a;
-
-  display: block;
-  bottom: 0.25px;
-}
-
-.map-button{
-  text-decoration: none;
-  display: flex;
-
-  font-size: 18px;
-  background-color: #1760fd;
-  color: #f4f8ff;
-  border-radius: 15px;
-
-  padding: 15px 10px;
-  text-align: center;
-  height: 100%;
-
-  transition: background-color 0.2s ease;
-}
-.map-button:hover{
-  background-color: #1250d4;
-}
-
-.map-preview{
-  flex-grow:1;
-  background-color: #dce4ef;
-  border-radius: 15px;
-  min-height: 200px;
-  width: 100%;
-  display: flex;
-  margin-top: auto;
-}
-/*----------------*/
-/* MODAL (POP-UP)*/
-/*----------------*/
-.modal{
-display: none; /* Disembunyikan */
-  position: fixed; /* Tetap di layar bahkan saat di-scroll */
-  z-index: 1000; /* Muncul di atas segalanya */
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  
-  /* Ini untuk memusatkan kotak pop-up */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  /* Transisi untuk fade-in (opsional tapi bagus) */
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.modal.show{
-  display: flex;
-  opacity: 1;
-  visibility: visible;
-}
-
+.modal.show { display: flex; opacity: 1; visibility: visible; }
 .modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(131, 118, 118, 0.5); /* Hitam transparan */
-  z-index: 1001;
-  background-position: absolute;
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(131, 118, 118, 0.5); z-index: 1001;
 }
-
+/* MODAL CONTENT - FIXED SCROLL & SIZE */
 .modal-content {
   position: relative;
-  width: 65%;
-  max-width: 434;
+  width: 90%;
+  max-width: 434px;
   height: fit-content;
+  max-height: 90vh; /* Mencegah modal terlalu tinggi melebihi layar */
+  overflow-y: auto; /* Mengaktifkan scroll jika kontennya banyak */
   z-index: 10002;
-
   background-color: #F4F8FF;
   border-radius: 30px;
-  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.23);
+  box-shadow: -2px 2px 10px rgba(0,0,0,0.23);
 
+  /* PENTING: Agar elemen di dalamnya (header, chart, detail boxes) menumpuk vertikal */
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-items: center;
-
+  
   transform: scale(0.9);
   transition: transform 0.3s ease;
-
   padding: 20px;
 }
-
-.modal.show .modal-content {
-  transform: scale(1);
-}
+.modal.show .modal-content { transform: scale(1); }
 
 .modal-header {
-  display: flex;
-
-  background-color: #fffefe;
-  border: 1px solid #2F2F2F;
-  border-radius: 50%;
-
-  height: 179px;
-  width: 179px;
-
-  align-items: center;
-  justify-content: center;
-  top: 10px;
-  right: 10px;
+  display: flex; background-color: #fffefe; border: 1px solid #2F2F2F;
+  border-radius: 50%; height: 150px; width: 150px; min-height: 150px;
+  align-items: center; justify-content: center; margin-bottom: 10px;
 }
+.modal-header.modal-header-radiasi { background-color: #FEF3E6; border: 1px solid #D97606; }
+.modal-header.modal-header-karbon { background-color: #EAFAF4; border: 1px solid #34D399; }
 
-.modal-header.modal-header-radiasi {
-  background-color: #FEF3E6;
-  border: 1px solid #D97606;
+.modal-icon { width: 80px; height: auto; }
+.modal-icon.modal-icon-radiasi { margin-top: 5px; margin-left: 1px; }
+.modal-icon.modal-icon-suhu { width: 40px; }
+.modal-icon.modal-icon-kelembapan { margin-right: 3px; margin-bottom: 1px; }
+
+.modal-title { font-size: 32px; font-weight: 500; margin: 5px 0 15px; text-align: center; }
+
+/* Chart & Status */
+.modal-status-alert {
+  padding: 5px; border-radius: 10px; margin-bottom: 10px;
+  text-align: center; font-weight: bold; font-size: 1.2em; width: 100%;
 }
+.status-teks { display: inline-block; padding: 5px 10px; border-radius: 5px; }
+.chart-container { position: relative; width: 100%; height: 200px; margin-bottom: 15px; flex-shrink: 0; }
 
-.modal-header.modal-header-karbon {
-  background-color: #EAFAF4;
-  border: 1px solid #34D399;
-}
-
-.modal-icon {
-  position: relative;
-  width: 100px;
-  height: auto;
-  align-items: center;
-  justify-items: center;
-}
-
-.modal-icon.modal-icon-radiasi{
-  top: 5px;
-  left: 1px;
-}
-
-.modal-icon.modal-icon-suhu {
-  width: 48px;
-}
-
-.modal-icon.modal-icon-kelembapan {
-  right: 3px;
-  bottom: 1px;
-}
-
-.modal-title {
-  font-size: 40px;
-  font-weight: 500;
-  margin-top: 10px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.modal-detail{
+.modal-detail {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  width: 100%;
+  width: 100%; /* Pastikan lebar penuh */
   min-height: fit-content;
-  max-height: 87px;
-  padding: 12px;
+  /* max-height: 87px;  <-- HAPUS BARIS INI agar tinggi fleksibel */
+  padding: 15px; /* Tambah padding sedikit biar lebih lega */
   background-color: #E6E6E6;
   border-radius: 15px;
-  margin-bottom: 15px;
+  margin-bottom: 15px; /* Jarak antar kotak detail */
+  flex-shrink: 0; /* Mencegah kotak mengecil/gepeng */
 }
-
 .modal-typo {
-  font-size: 24px;
+  font-size: 20px;
   color: #666666;
 }
-
 .modal-value {
-  font-size: 24px;
+  font-size: 20px;
   color: #333333;
+  justify-self: end;
 }
 
-.modal-button{
-  display: flex;
-  width: 100%;
-  height: fit-content;
-  margin-top: 100px;
-  text-align: center;
-  justify-content: center;
-  padding: 12px 25px;
+.modal-button {
+  display: flex; width: 100%; height: fit-content; margin-top: 10px;
+  justify-content: center; padding: 12px 25px; min-height: 45px;
+  text-decoration: none; background-color: #FF3639; color: #F4F8FF;
+  border-radius: 10px; font-size: 18px; font-weight: 550; cursor: pointer;
+}
+.modal-button:hover { background-color: #E82A2D; }
 
-  width: 100%;
-  min-height: 45px;
-  height: fit-content;
-
-  text-decoration: none;
-  background-color: #FF3639;
-  color: #F4F8FF;
-  border-radius: 10px;
-
-  font-size: 18px;
-  font-weight: 550;
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .main-container { grid-template-columns: repeat(2, 1fr); grid-auto-flow: row; }
+  .card.card-map { grid-row: auto; grid-column: 1 / -1; order: 1; }
+  .card-value { margin-bottom: 30px; }
+  .card:not(.card-map) { order: 0; }
 }
 
-.modal-button:hover,
-.modal-button:focus {
-  background-color: #E82A2D;
-  text-decoration: none;
-  cursor: pointer;
+@media (max-width: 500px) {
+  .header { flex-direction: column; gap: 16px; }
+  .header-container { padding-bottom: 10px; }
+  .judul-web { padding-bottom: 5px; font-size: 40px; }
+  .main-container { grid-template-columns: 1fr; }
+  .card-map { grid-column: 1 / -1; order: 1; }
+  .card-value { font-size: 40px; }
+  .modal-content { width: 85%; height: fit-content; }
 }
 
-/* Untuk Tablet <1024px */
-
-@media (max-width: 1024px){
-  .main-container{
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-flow: row;
-  }
-
-  .card.card-map{
-    grid-row:auto;
-    grid-column: 1 / -1;
-    order: 1;
-  }
-
-  .card-value{
-    margin-bottom: 30px;
-  }
-
-  .card:not(.card-map){
-    order: 0;
-  }
-}
-
-/* Untuk HP <395px */
-
-@media (max-width: 500px){
-
-   .header{
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .header-container{
-    padding-bottom: 10px;
-  }
-
-  .judul-web{
-    padding-bottom: 5px;
-  }
-
-  .main-container{
-    grid-template-columns: 1fr;
-  }
-
-  .card-map{
-    grid-column: 1 / -1;
-    order: 1;
-  }
-
-  .judul-web{
-    font-size:40px;
-  }
-
-  .card-value{
-    font-size:40px;
-  }
-
-  .modal-content{
-    width: 80%;
-    height: 60%;
-    height: fit-content;
-  }
-}
-
-/* MODAL pas HP lansdcape */
-@media (max-height: 500px) and (orientation: landscape) {
-  .modal-content{
-    align-items: center;
-    justify-content: center;
-
-
-  }
-
-  .modal-header{
-    width: 100px;
-    height: 100px;
-  }
-
-  .modal-icon{
-    width: 45px;
-    height: 45px;
-  }
-
-  .modal-detail{
-    height: 60px;
-  }
-  .modal-title{
-    font-size: 20px;
-    margin-top: 20px;
-  }
-  .modal-typo,
-  .modal-value{
-    font-size: 16px;
-    height: 15px;
-  }
-
-  .modal-button {
-    display: none;
-  }
-}
