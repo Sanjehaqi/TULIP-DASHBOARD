@@ -1,95 +1,68 @@
-let activeCharts = {}; 
+const CHANNEL_ID = '3182232';        
+const READ_API_KEY = 'Q4EK1PMPN150NY25'; 
 
-async function buatGrafik(channelId, apiKey, canvasId, fieldName, label, color) {
-    // Ambil 20 data terakhir agar grafik batang terlihat jelas (tidak terlalu rapat)
-    const url = `https://api.thingspeak.com/channels/${channelId}/feeds.json?results=20&api_key=${apiKey}`;
-    
-    if (activeCharts[canvasId]) { activeCharts[canvasId].destroy(); activeCharts[canvasId] = null; }
-
-    try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-        const data = await response.json(); // Perbaikan: gunakan 'response' bukan 'res' untuk konsistensi, tapi di atas pakai res. saya perbaiki variabelnya di bawah.
-    } catch(e) {
-        // Block catch
+const SENSORS = {
+    radiasi: { 
+        field: 'field1', unit: 'μSv/h', title: 'Level Radiasi', color: 'rgba(255, 206, 86, 1)', 
+        sensorName: 'Geiger Counter', statusType: 'radiasi' 
+    },
+    karbon: { 
+        field: 'field2', unit: 'ppm', title: 'Kadar Karbon', color: 'rgba(54, 162, 235, 1)', 
+        sensorName: 'MQ-7 (CO)', statusType: 'karbon' 
+    },
+    suhu: { 
+        field: 'field3', unit: '°C', title: 'Suhu Lingkungan', color: 'rgba(255, 99, 132, 1)', 
+        sensorName: 'DHT22', statusType: 'suhu' 
+    },
+    kelembapan: { 
+        field: 'field4', unit: '%', title: 'Kelembapan', color: 'rgba(75, 192, 192, 1)', 
+        sensorName: 'DHT22', statusType: 'lembab' 
     }
-    
-    // --- PERBAIKAN LOGIKA FETCH ---
-    fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        const feeds = data.feeds;
-        
-        // Format Waktu: 24 Jam (Tanpa AM/PM)
-        const labels = feeds.map(feed => {
-            const date = new Date(feed.created_at);
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-        });
-        
-        const values = feeds.map(feed => parseFloat(feed[fieldName]));
+};
 
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        
-        // --- BAGIAN YANG MENGUBAH KE HISTOGRAM/BAR ---
-        activeCharts[canvasId] = new Chart(ctx, {
-            type: 'bar', // <--- UBAH KE 'bar'
-            data: {
-                labels: labels, // Urutan normal (kiri lama -> kanan baru)
-                datasets: [{
-                    label: label, 
-                    data: values, 
-                    // Warna batang dibuat agak transparan
-                    backgroundColor: color.replace('1)', '0.6)'), 
-                    borderColor: color, 
-                    borderWidth: 1,
-                    borderRadius: 4, // Sudut batang sedikit membulat
-                    barPercentage: 0.6, // Lebar batang (0.1 - 1.0)
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }, // Sembunyikan legenda
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.parsed.y + ' ' + (fieldName === 'field1' ? 'μSv/h' : fieldName === 'field2' ? 'ppm' : fieldName === 'field3' ? '°C' : '%');
-                            }
-                        }
-                    }
-                },
-                scales: { 
-                    x: { 
-                        grid: { display: false }, // Hilangkan garis vertikal biar bersih
-                        ticks: { maxTicksLimit: 6 }
-                    }, 
-                    y: { 
-                        beginAtZero: false, // Agar grafik fokus pada perubahan nilai (tidak flat di bawah)
-                        grid: { borderDash: [5, 5] } 
-                    }
-                }
-            }
-        });
-    })
-    .catch(error => console.error(error));
+let activeChart = null; 
+let currentSensorType = null; 
+
+// --- HELPER FORMAT TANGGAL (PENTING AGAR TIDAK ERROR DI SERVER) ---
+function formatDateKey(dateObj) {
+    // Menghasilkan string "1/12/2025" yang konsisten di semua browser
+    const day = dateObj.getDate();
+    const month = dateObj.getMonth() + 1; // Bulan mulai dari 0
+    const year = dateObj.getFullYear();
+    return `${day}/${month}/${year}`;
 }
 
-// --- LOGIKA STATUS ---
+// 1. FUNGSI NAVIGASI
+function switchView(viewName) {
+    const home = document.getElementById('home-view');
+    const detail = document.getElementById('detail-view');
+
+    if (viewName === 'detail') {
+        home.classList.add('hidden');
+        detail.classList.remove('hidden');
+        window.scrollTo(0,0);
+    } else {
+        home.classList.remove('hidden');
+        detail.classList.add('hidden');
+    }
+}
+
+// 2. STATUS CHECKER
 function getStatus(val, type) {
     if (isNaN(val) || val === null) return { text: "N/A", color: "gray" };
     
     if (type === 'karbon') {
-        if (val <= 1000) return { text: "SEHAT", color: "#34d399" };
+        if (val <= 1000) return { text: "AMAN", color: "#34d399" };
         if (val <= 2000) return { text: "WASPADA", color: "#facc15" };
         return { text: "BAHAYA", color: "#f43f5e" };
     }
     if (type === 'suhu') {
         if (val >= 20 && val <= 26) return { text: "NYAMAN", color: "#34d399" };
         if (val > 26 && val <= 30) return { text: "HANGAT", color: "#facc15" };
-        return { text: "EKSTREM", color: "#f43f5e" };
+        return { text: "PANAS", color: "#f43f5e" };
     }
     if (type === 'radiasi') {
-        if (val <= 0.2) return { text: "AMAN", color: "#34d399" };
+        if (val <= 0.2) return { text: "NORMAL", color: "#34d399" };
         return { text: "BAHAYA", color: "#f43f5e" };
     }
     if (type === 'lembab') {
@@ -99,122 +72,268 @@ function getStatus(val, type) {
     return { text: "Info", color: "black" };
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const CHANNEL_ID = '3182232';        
-    const READ_API_KEY = 'Q4EK1PMPN150NY25'; 
-    const FIELD_RADIASI = 'field1';
-    const FIELD_KARBON = 'field2';
-    const FIELD_SUHU = 'field3';
-    const FIELD_KELEMBAPAN = 'field4';
-    const FIELD_BATERAI = 'field5';
-    const FIELD_RSSI = 'field6';
-    const FIELD_LAT = 'field7';
+// 3. LOGIKA CHART
+async function loadChart(type, range) {
+    if (!type || !SENSORS[type]) return;
 
-    // UI Elements
-    const batteryVal = document.querySelector('.battery-value');
-    const batteryBars = [document.getElementById('battery-bar-1'), document.getElementById('battery-bar-2'), document.getElementById('battery-bar-3')];
-    const wifiVal = document.querySelector('.wifi-value');
-    const wifiIcon = document.getElementById('wifi-icon');
-    const wifiArcs = [document.getElementById('wifi-arc-1'), document.getElementById('wifi-arc-2')];
-    const gpsVal = document.querySelector('.gps-value');
-    const mapLink = document.getElementById('map-link');
+    const sensor = SENSORS[type];
+    const canvas = document.getElementById('detailChart');
+    if (!canvas) return; // Mencegah error jika canvas belum siap
+
+    const ctx = canvas.getContext('2d');
     
-    const cardRad = document.querySelector('.card-radiation .card-value');
-    const cardKarb = document.querySelector('.card-carbon .card-value');
-    const cardSuhu = document.querySelector('.card-temperature .card-value');
-    const cardHum = document.querySelector('.humidity-card .card-value');
-
-    async function updateData() {
-        try {
-            const res = await fetch(`https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=1&api_key=${READ_API_KEY}`);
-            const json = await res.json();
-            if (!json.feeds.length) return;
-            
-            const d = json.feeds[0];
-            const rad = parseFloat(d[FIELD_RADIASI]);
-            const karb = parseFloat(d[FIELD_KARBON]);
-            const suhu = parseFloat(d[FIELD_SUHU]);
-            const hum = parseFloat(d[FIELD_KELEMBAPAN]);
-            const batt = parseFloat(d[FIELD_BATERAI]);
-            const rssi = parseFloat(d[FIELD_RSSI]);
-            const lat = d[FIELD_LAT];
-
-            // Cards
-            cardRad.textContent = isNaN(rad) ? "N/A" : rad.toFixed(3) + " μSv/h";
-            const statusRad = getStatus(rad, 'radiasi');
-            document.getElementById('status-radiasi-teks').textContent = statusRad.text;
-            document.getElementById('status-radiasi-teks').style.color = statusRad.color;
-
-            cardKarb.textContent = isNaN(karb) ? "N/A" : karb.toFixed(1) + " ppm";
-            const statusKarb = getStatus(karb, 'karbon');
-            document.getElementById('status-karbon-teks').textContent = statusKarb.text;
-            document.getElementById('status-karbon-teks').style.color = statusKarb.color;
-
-            cardSuhu.textContent = isNaN(suhu) ? "N/A" : suhu.toFixed(1) + " °C";
-            const statusSuhu = getStatus(suhu, 'suhu');
-            document.getElementById('status-suhu-teks').textContent = statusSuhu.text;
-            document.getElementById('status-suhu-teks').style.color = statusSuhu.color;
-            const modalFahr = document.querySelectorAll('#modal-suhu .modal-value');
-            if (modalFahr.length > 0 && !isNaN(suhu)) modalFahr[0].textContent = ((suhu*9/5)+32).toFixed(1) + "°F";
-
-            cardHum.textContent = isNaN(hum) ? "N/A" : hum.toFixed(0) + "%";
-            const statusHum = getStatus(hum, 'lembab');
-            document.getElementById('status-kelembapan-teks').textContent = statusHum.text;
-            document.getElementById('status-kelembapan-teks').style.color = statusHum.color;
-
-            // Battery
-            const bVal = isNaN(batt) ? 0 : Math.min(100, Math.max(0, batt));
-            batteryVal.textContent = bVal.toFixed(0) + "%";
-            batteryBars.forEach(b => b.style.display = 'none');
-            if (bVal > 66) batteryBars.forEach(b => b.style.display='block');
-            else if (bVal > 33) { batteryBars[0].style.display='block'; batteryBars[1].style.display='block'; }
-            else if (bVal > 5) batteryBars[0].style.display='block';
-
-            // LoRa Signal
-            const rVal = isNaN(rssi) ? -120 : rssi;
-            let sigTxt = "Disconnected", sigCol = "#f43f5e";
-            wifiArcs.forEach(a => a.style.display = 'none');
-            if (rVal > -70) { sigTxt="Excellent"; sigCol="#1760fd"; wifiArcs.forEach(a=>a.style.display='block'); }
-            else if (rVal > -90) { sigTxt="Good"; sigCol="#1760fd"; wifiArcs[0].style.display='block'; wifiArcs[1].style.display='block'; }
-            else if (rVal > -110) { sigTxt="Fair"; sigCol="#facc15"; wifiArcs[0].style.display='block'; }
-            
-            wifiVal.textContent = `${sigTxt} (${rVal.toFixed(0)} dBm)`;
-            wifiVal.style.color = sigCol;
-            wifiIcon.style.fill = sigCol;
-
-            // GPS
-            if (lat && lat !== "N/A" && lat !== "0") {
-                gpsVal.textContent = parseFloat(lat).toFixed(4);
-                if (mapLink) mapLink.href = `https://maps.google.com/maps?q=Latitude,Longitude0{lat},-118.243`;
-            } else {
-                gpsVal.textContent = "No Signal";
-            }
-
-        } catch (e) { console.error(e); }
+    // Matikan chart lama jika ada
+    if (activeChart) { 
+        activeChart.destroy(); 
+        activeChart = null;
     }
 
+    let url = '';
+    if (range === 'week') {
+        url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?days=7&api_key=${READ_API_KEY}`;
+    } else {
+        url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=60&api_key=${READ_API_KEY}`;
+    }
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const feeds = data.feeds;
+
+        let labels = [];
+        let values = [];
+        let chartType = 'bar'; // Default line untuk harian
+
+        if (range === 'week') {
+            chartType = 'bar';
+            const dailyDataMap = {};
+            
+            feeds.forEach(feed => {
+                const dateObj = new Date(feed.created_at);
+                const dateKey = formatDateKey(dateObj); // Pakai helper function
+                const val = parseFloat(feed[sensor.field]);
+                
+                if (!isNaN(val)) {
+                    if (!dailyDataMap[dateKey]) {
+                        dailyDataMap[dateKey] = { sum: 0, count: 0 };
+                    }
+                    dailyDataMap[dateKey].sum += val;
+                    dailyDataMap[dateKey].count += 1;
+                }
+            });
+
+            // Loop 7 hari terakhir
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                
+                const dateKey = formatDateKey(d);
+                // Label hari dalam Bahasa Indonesia
+                const dayLabel = d.toLocaleDateString('id-ID', { weekday: 'long' });
+
+                labels.push(dayLabel);
+
+                if (dailyDataMap[dateKey]) {
+                    const avg = dailyDataMap[dateKey].sum / dailyDataMap[dateKey].count;
+                    values.push(avg.toFixed(2));
+                } else {
+                    values.push(0);
+                }
+            }
+
+        } else {
+            // Harian (Line Chart)
+            chartType = 'bar';
+            labels = feeds.map(f => {
+                const date = new Date(f.created_at);
+                return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
+            });
+            values = feeds.map(f => parseFloat(f[sensor.field]));
+        }
+
+        // Hitung Rata-rata Total
+        const validValuesTotal = feeds.map(f => parseFloat(f[sensor.field])).filter(v => !isNaN(v));
+        const avgTotal = validValuesTotal.length ? (validValuesTotal.reduce((a, b) => a + b, 0) / validValuesTotal.length) : 0;
+        document.getElementById('detail-avg').textContent = avgTotal.toFixed(2) + ' ' + sensor.unit;
+
+        activeChart = new Chart(ctx, {
+            type: chartType,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: sensor.title,
+                    data: values,
+                    backgroundColor: range === 'week' ? sensor.color : sensor.color.replace('1)', '0.2)'),
+                    borderColor: sensor.color,
+                    borderWidth: 2,
+                    fill: (range === 'day'), 
+                    tension: 0.3,
+                    borderRadius: range === 'week' ? 5 : 0 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { maxTicksLimit: 8 } },
+                    y: { beginAtZero: false }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("Gagal load chart:", error);
+    }
+}
+
+// 4. OPEN DETAIL
+function openDetail(type) {
+    currentSensorType = type;
+    const sensor = SENSORS[type];
+    
+    document.getElementById('detail-title-text').textContent = sensor.title;
+    document.getElementById('detail-sensor-type').textContent = sensor.sensorName;
+
+    const classMapping = {
+        'radiasi': 'card-radiation',
+        'karbon': 'card-carbon',
+        'suhu': 'card-temperature',
+        'kelembapan': 'card-humidity'
+    };
+
+    const targetClass = classMapping[type];
+    const cardEl = document.querySelector(`.${targetClass}`);
+    
+    let cardValue = "--";
+    if (cardEl) {
+        const valEl = cardEl.querySelector('.card-value');
+        if (valEl) cardValue = valEl.textContent;
+    }
+    
+    document.getElementById('detail-value-big').textContent = cardValue;
+
+    // Reset tombol filter
+    document.querySelectorAll('.chart-toggle').forEach(b => b.classList.remove('active'));
+    document.querySelector('.chart-toggle[data-range="day"]').classList.add('active');
+
+    // Update Status Badge
+    const rawVal = parseFloat(cardValue); 
+    const status = getStatus(rawVal, sensor.statusType);
+    const badge = document.getElementById('detail-status-badge');
+    badge.textContent = status.text;
+    badge.style.backgroundColor = status.color;
+
+    switchView('detail');
+    loadChart(type, 'day');
+}
+
+// 5. UPDATE DASHBOARD UTAMA
+async function updateDashboard() {
+    try {
+        // Ambil hanya 1 data terakhir untuk dashboard
+        const res = await fetch(`https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=1&api_key=${READ_API_KEY}`);
+        const json = await res.json();
+        
+        // Cek apakah ada data
+        if (!json.feeds || json.feeds.length === 0) return;
+        
+        const d = json.feeds[0];
+        
+        const updateCard = (cls, field, type) => {
+            const val = parseFloat(d[field]);
+            const card = document.querySelector('.' + cls);
+            if (card) {
+                const elVal = card.querySelector('.card-value');
+                const decimals = (type === 'radiasi') ? 3 : 1;
+                elVal.textContent = isNaN(val) ? "N/A" : val.toFixed(decimals) + " " + SENSORS[type].unit;
+            }
+        };
+
+        updateCard('card-radiation', SENSORS.radiasi.field, 'radiasi');
+        updateCard('card-carbon', SENSORS.karbon.field, 'karbon');
+        updateCard('card-temperature', SENSORS.suhu.field, 'suhu');
+        updateCard('card-humidity', SENSORS.kelembapan.field, 'kelembapan');
+
+        // Update Battery & Signal
+        const batt = parseFloat(d['field5']);
+        const rssi = parseFloat(d['field6']);
+        const lat = d['field7'];
+        
+        const bVal = isNaN(batt) ? 0 : Math.min(100, Math.max(0, batt));
+        const elBat = document.querySelector('.battery-value');
+        if(elBat) elBat.textContent = bVal.toFixed(0) + "%";
+
+        const rVal = isNaN(rssi) ? -120 : rssi;
+        const wifiVal = document.querySelector('.wifi-value');
+        const wifiIcon = document.getElementById('wifi-icon');
+        
+        if (wifiVal && wifiIcon) {
+            if (rVal > -70) { 
+                wifiVal.textContent="Excellent"; wifiVal.style.color="#1760fd"; wifiIcon.style.fill="#1760fd"; 
+            } else if (rVal > -90) { 
+                wifiVal.textContent="Good"; wifiVal.style.color="#1760fd"; wifiIcon.style.fill="#1760fd"; 
+            } else { 
+                wifiVal.textContent="Weak"; wifiVal.style.color="#facc15"; wifiIcon.style.fill="#facc15"; 
+            }
+        }
+
+        // GPS Link
+        const gpsVal = document.querySelector('.gps-value');
+        const mapLink = document.getElementById('map-link');
+        
+        if (lat && lat !== "N/A" && lat !== "0") {
+             if(gpsVal) gpsVal.textContent = parseFloat(lat).toFixed(4);
+             // Update link Google Maps jika ada koordinat (misal field7=lat, field8=long)
+             // Di sini asumsi field7 adalah Lat, field8 mungkin Long (sesuaikan jika perlu)
+             // Jika hanya ada 1 data lat, mapLink tetap aktif
+             if(mapLink) mapLink.href = `https://www.google.com/maps?q=${lat}`;
+        } else {
+             if(gpsVal) gpsVal.textContent = "No Signal";
+        }
+
+    } catch (e) { 
+        console.error("Dashboard update error:", e); 
+    }
+}
+
+// 6. INISIALISASI
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Listener Tombol Detail
     document.querySelectorAll('.detail-button').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = btn.dataset.target;
-            const m = document.querySelector(targetId);
-            if (m) {
-                m.classList.add('show');
-                // Warna grafik disesuaikan agar cantik
-                if (targetId === '#modal-suhu') buatGrafik(CHANNEL_ID, READ_API_KEY, 'suhuChart', FIELD_SUHU, 'Suhu', 'rgba(255, 99, 132, 1)');
-                if (targetId === '#modal-karbon') buatGrafik(CHANNEL_ID, READ_API_KEY, 'karbonChart', FIELD_KARBON, 'Karbon', 'rgba(54, 162, 235, 1)');
-                if (targetId === '#modal-radiasi') buatGrafik(CHANNEL_ID, READ_API_KEY, 'radiasiChart', FIELD_RADIASI, 'Radiasi', 'rgba(255, 206, 86, 1)');
-                if (targetId === '#modal-kelembapan') buatGrafik(CHANNEL_ID, READ_API_KEY, 'kelembapanChart', FIELD_KELEMBAPAN, 'Kelembaban', 'rgba(75, 192, 192, 1)');
+            e.preventDefault(); // Mencegah scroll ke atas
+            e.stopPropagation(); // Mencegah double click
+            const type = btn.dataset.type; 
+            if(type) openDetail(type);
+        });
+    });
+
+    // Listener Tombol Kembali
+    const btnBack = document.getElementById('btn-kembali');
+    if(btnBack) {
+        btnBack.addEventListener('click', () => {
+            switchView('home');
+        });
+    }
+
+    // Listener Toggle Chart (Hari/Minggu)
+    document.querySelectorAll('.chart-toggle').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.chart-toggle').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            const range = e.target.dataset.range; 
+            if (currentSensorType) {
+                loadChart(currentSensorType, range);
             }
         });
     });
 
-    document.querySelectorAll('.modal-button, .modal-overlay').forEach(el => {
-        el.addEventListener('click', () => {
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
-        });
-    });
-
-    updateData();
-    setInterval(updateData, 30000);
+    // Jalankan pertama kali
+    updateDashboard();
+    
+    // Auto update tiap 15 detik
+    setInterval(updateDashboard, 15000);
 });

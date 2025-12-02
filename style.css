@@ -8,6 +8,9 @@ html, body {
   background-attachment: fixed; background-repeat: no-repeat; background-size: cover;
 }
 
+/* Helper Class untuk Navigasi */
+.hidden { display: none !important; }
+
 /* 2. HEADER */
 .header-container {
   display: flex; justify-content: center; align-items: center;
@@ -40,11 +43,6 @@ html, body {
 .indikator-name { font-family: "Roboto", sans-serif; font-size: 18px; font-weight: 400; }
 .indikator-icon { width: 46px; height: 37px; display: block; margin: auto; fill: #1760fd; }
 .indikator-value.wifi-value, .indikator-value.gps-value { color: #1760fd; }
-
-/* Warna Status Indikator */
-.battery-status-good .indikator-icon, .battery-status-good .indikator-value { color: #13DE7F; fill: #13DE7F; }
-.battery-status-medium .indikator-icon, .battery-status-medium .indikator-value { color: #DEB513; fill: #DEB513; }
-.battery-status-low .indikator-icon, .battery-status-low .indikator-value { color: #DE1313; fill: #DE1313; }
 
 /* 4. MAIN GRID */
 .main-container {
@@ -103,118 +101,126 @@ html, body {
 .card-icon.humidity-icon { width: 20px; height: 23px; }
 
 .detail-button {
-  text-decoration: none; display: flex; width: fit-content; padding: 5px 10px; gap: 5px;
+  text-decoration: none; display: flex; width: fit-content; padding: 5px 10px; 
   background-color: #f2f2f2; border-radius: 10px; align-items: center; color: #1a1a1a;
-  transition: background-color 0.2s ease; height: 100%;
+  transition: background-color 0.2s ease; height: 100%; border: 1px solid #ccc;
+  cursor: pointer;
 }
 .detail-button:hover { background-color: #e9e7e7; }
-.detail-icon { height: 15px; width: 100%; fill: #1a1a1a; display: block; bottom: 0.25px; position: relative; }
+.detail-icon { height: 20px; width: 20px; fill: #1a1a1a; margin-right: 5px; margin-top: 4.8px;}
 
-/* 5. MODAL */
-.modal {
-  display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-  width: 100%; height: 100%;
-  justify-content: center; align-items: center;
-  opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.modal.show { display: flex; opacity: 1; visibility: visible; }
-.modal-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background-color: rgba(131, 118, 118, 0.5); z-index: 1001;
-}
-/* MODAL CONTENT - FIXED SCROLL & SIZE */
-.modal-content {
-  position: relative;
-  width: 90%;
-  max-width: 434px;
-  height: fit-content;
-  max-height: 90vh; /* Mencegah modal terlalu tinggi melebihi layar */
-  overflow-y: auto; /* Mengaktifkan scroll jika kontennya banyak */
-  z-index: 10002;
+/* =========================================
+   DETAIL PAGE STYLES (UPDATED)
+   ========================================= */
+#detail-view {
+  width: 100%;
+  min-height: 100vh;
   background-color: #F4F8FF;
-  border-radius: 30px;
-  box-shadow: -2px 2px 10px rgba(0,0,0,0.23);
-
-  /* PENTING: Agar elemen di dalamnya (header, chart, detail boxes) menumpuk vertikal */
+  padding: 20px 40px; /* Padding lebih lebar */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  
-  transform: scale(0.9);
-  transition: transform 0.3s ease;
-  padding: 20px;
-}
-.modal.show .modal-content { transform: scale(1); }
-
-.modal-header {
-  display: flex; background-color: #fffefe; border: 1px solid #2F2F2F;
-  border-radius: 50%; height: 150px; width: 150px; min-height: 150px;
-  align-items: center; justify-content: center; margin-bottom: 10px;
-}
-.modal-header.modal-header-radiasi { background-color: #FEF3E6; border: 1px solid #D97606; }
-.modal-header.modal-header-karbon { background-color: #EAFAF4; border: 1px solid #34D399; }
-
-.modal-icon { width: 80px; height: auto; }
-.modal-icon.modal-icon-radiasi { margin-top: 5px; margin-left: 1px; }
-.modal-icon.modal-icon-suhu { width: 40px; }
-.modal-icon.modal-icon-kelembapan { margin-right: 3px; margin-bottom: 1px; }
-
-.modal-title { font-size: 32px; font-weight: 500; margin: 5px 0 15px; text-align: center; }
-
-/* Chart & Status */
-.modal-status-alert {
-  padding: 5px; border-radius: 10px; margin-bottom: 10px;
-  text-align: center; font-weight: bold; font-size: 1.2em; width: 100%;
-}
-.status-teks { display: inline-block; padding: 5px 10px; border-radius: 5px; }
-.chart-container { position: relative; width: 100%; height: 200px; margin-bottom: 15px; flex-shrink: 0; }
-
-.modal-detail {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%; /* Pastikan lebar penuh */
-  min-height: fit-content;
-  /* max-height: 87px;  <-- HAPUS BARIS INI agar tinggi fleksibel */
-  padding: 15px; /* Tambah padding sedikit biar lebih lega */
-  background-color: #E6E6E6;
-  border-radius: 15px;
-  margin-bottom: 15px; /* Jarak antar kotak detail */
-  flex-shrink: 0; /* Mencegah kotak mengecil/gepeng */
-}
-.modal-typo {
-  font-size: 20px;
-  color: #666666;
-}
-.modal-value {
-  font-size: 20px;
-  color: #333333;
-  justify-self: end;
 }
 
-.modal-button {
-  display: flex; width: 100%; height: fit-content; margin-top: 10px;
-  justify-content: center; padding: 12px 25px; min-height: 45px;
-  text-decoration: none; background-color: #FF3639; color: #F4F8FF;
-  border-radius: 10px; font-size: 18px; font-weight: 550; cursor: pointer;
+.detail-header-nav {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
 }
-.modal-button:hover { background-color: #E82A2D; }
+
+.btn-back {
+  background: white; border: 1px solid #ccc; padding: 10px 20px;
+  border-radius: 10px; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  font-weight: 500; color: #203146; transition: background 0.2s;
+}
+.btn-back:hover { background: #e0e0e0; }
+
+#detail-title-text {
+  font-size: 28px; margin: 0; color: #203146; flex-grow: 1; text-align: right;
+}
+
+/* LAYOUT CONTAINER UTAMA */
+.detail-layout {
+  display: flex; flex-direction: column; gap: 20px; width: 100%;
+}
+
+/* BAGIAN ATAS (Status & Nilai) */
+.detail-top-section {
+  display: flex; justify-content: space-between;
+  background: white; border-radius: 20px; padding: 30px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border: 1px solid #eee; width: 100%;
+}
+
+.status-container, .value-container {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; width: 48%;
+}
+
+.status-label, .value-label {
+  font-size: 16px; color: #666; margin-bottom: 10px; font-weight: 500; letter-spacing: 1px;
+}
+
+.status-badge-large {
+  font-size: 24px; font-weight: bold; color: white;
+  padding: 10px 40px; border-radius: 30px; background: #ccc;
+}
+
+.current-value-display {
+  font-size: 42px; font-weight: bold; color: #203146;
+}
+
+/* BAGIAN BAWAH (Grafik & Footer) */
+.detail-bottom-section {
+  background: white; border-radius: 20px; padding: 30px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border: 1px solid #eee; width: 100%;
+}
+
+.chart-header-row {
+  display: flex; justify-content: flex-end; margin-bottom: 20px;
+}
+
+.chart-controls { display: flex; gap: 10px; }
+.chart-toggle {
+  background: #eef2f7; border: 1px solid #ddd;
+  padding: 10px 20px; border-radius: 20px; cursor: pointer;
+  font-size: 14px; color: #555;
+}
+.chart-toggle.active {
+  background: #1760fd; color: white; border-color: #1760fd;
+}
+
+.detail-chart-wrapper {
+  position: relative; height: 400px; width: 100%;
+  margin-bottom: 30px;
+}
+
+.detail-footer-info {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  border-top: 1px solid #eee; padding-top: 20px;
+}
+.footer-item {
+  display: flex; flex-direction: column; align-items: center;
+}
+.footer-label { font-size: 14px; color: #888; }
+.footer-val { font-size: 20px; font-weight: bold; color: #333; }
 
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .main-container { grid-template-columns: repeat(2, 1fr); grid-auto-flow: row; }
   .card.card-map { grid-row: auto; grid-column: 1 / -1; order: 1; }
-  .card-value { margin-bottom: 30px; }
   .card:not(.card-map) { order: 0; }
+  
+  .detail-top-section { flex-direction: column; gap: 20px; }
+  .status-container, .value-container { width: 100%; }
 }
 
 @media (max-width: 500px) {
   .header { flex-direction: column; gap: 16px; }
-  .header-container { padding-bottom: 10px; }
-  .judul-web { padding-bottom: 5px; font-size: 40px; }
   .main-container { grid-template-columns: 1fr; }
   .card-map { grid-column: 1 / -1; order: 1; }
-  .card-value { font-size: 40px; }
-  .modal-content { width: 85%; height: fit-content; }
+  
+  #detail-view { padding: 15px; }
+  .current-value-display { font-size: 32px; }
+  .status-badge-large { font-size: 18px; padding: 8px 25px; }
 }
-
